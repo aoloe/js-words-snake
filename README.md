@@ -4,14 +4,16 @@ Create a snake of words between a _tail word_ and the _head one_.
 
 ## Install
 
-- `git clone https://github.com/aoloe/js-game-cipher.git cipher`
+- `git clone https://github.com/aoloe/js-words-snake.git snake`
 - `cd api`
   - `wget https://raw.githubusercontent.com/aoloe/php-tiny-rest/master/src/TinyRest.php`
+  - `mkdir db`
 - `cd js`
   - `wget https://cdn.jsdelivr.net/npm/vue/dist/vue.js`
   - `wget https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js`
   - `wget https://cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js`
   - `wget https://cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.20.0/vuedraggable.umd.min.js`
+  - create a `config.php` based on `config-demo.php`
 
 ## Todo
 
