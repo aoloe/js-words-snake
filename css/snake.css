@@ -1,0 +1,137 @@
+/** = list = */
+ul.snake-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+ul.snake-list li {
+  margin-top:1em;
+}
+
+ul.snake-list a {
+  color: black;
+  text-decoration: none;
+}
+
+ul.snake-list li:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/** = words-snake = */
+
+.snake-box {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+}
+
+.snake-box .left {
+  border: 1px solid black;
+  min-width:10em;
+  width: 30%;
+}
+
+.snake-box .right {
+  border: 1px solid black;
+  width: 70%;
+
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.snake-box .right div {
+  height: 1em;
+  margin: .2em;
+  padding: .2em;
+  margin-top:1em;
+  border: 1px solid black;
+}
+
+.snake-solved {
+  background-color: gold;
+}
+
+.snake-words .sortable-source {
+  color: transparent;
+  background-color: lightgray;
+}
+
+.snake-words .active-target {
+  background-color: lightyellow;
+}
+
+.snake-top,
+.snake-bottom
+{
+  min-height: 20px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.snake-top {
+  align-items: flex-start;
+}
+
+.snake-bottom {
+  justify-content: right;
+  align-items: flex-end;
+}
+
+.snake-top .first,
+.snake-bottom .last
+{
+  color: white;
+  background-color: black;
+}
+
+.snake-top .word,
+.snake-bottom .word,
+.snake-top .first,
+.snake-bottom .last,
+.snake-drop-placeholder,
+.snake-drop-target:empty
+{
+  height: 1em;
+  margin: .2em;
+  padding: .2em;
+  margin-top:1em;
+}
+
+.snake-top .word,
+.snake-bottom .word
+{
+  border: 1px solid black;
+}
+
+.snake-drop-target div {
+  color: transparent;
+  max-width:20px;
+  min-height: .6em;
+  background-color:lightgray;
+}
+
+hr {
+  margin:0px;
+  background-color: black; height: 1px; border: 0;
+}
+
+/** = editor = */
+
+div.editor {
+  margin-bottom: 2em;
+}
+span.share_key {
+  padding: 2px;
+  border: 1px solid darkgray;
+  background-color: lightgray;
+}
+div.editor textarea {
+  width:100%;
+  max-width:50em;
+  height:7em;
+}
+div.editor input.description {
+  width:100%;
+  max-width:40em;
+}

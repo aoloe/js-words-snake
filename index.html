@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>words snake</title>
+    <link rel="stylesheet" href="css/snake.css">
+    <style>
+    </style>
+  </head>
+  <body>
+    <div class="" id="app">
+      <h1>Words snake</h1>
+      <p v-if="snake_id !== null || editing"><button v-on:click="select()">Back to the list</button></p>
+      <editor v-if="editing === true" :languages="languages" v-on:create="create" v-on:update="update">
+      </editor>
+      <div v-else-if="snake_id !== null" class="snake">
+        <words-snake :snake_id="snake_id">
+        </words-snake>
+        <!--
+        <p>
+          <template v-if="share_key === null">
+          <input type="button" v-on:click="share" value="Share">
+          </template>
+          <template v-else>
+          <span class="share_key">{{share_key}}</span>
+          </template>
+        </p>
+        -->
+      </div>
+      <template v-else>
+        <snake-list :list="list" :languages="languages" v-if="list.length > 0" v-on:select="select">
+        </snake-list>
+        <h2>Create a snake</h2>
+        <p>Create your own snake <input type="button" value="Create" v-on:click="edit('')"></p>
+        <!--
+        <h2>Join a shared snake</h2>
+        <p>Use the invitation code you got: <input type="text" v-model="share_key" v-on:keyup.enter="join_shared"> <input type="button" value="Join" v-on:click="join_shared"></p>
+        -->
+      </template>
+    </div>
+    <!--
+    <script src="https://js.pusher.com/5.1/pusher.min.js"></script>
+    -->
+    <script src="js/axios.min.js"></script>
+    <script src="js/vue.js"></script>
+    <script src="js/Sortable.min.js"></script>
+    <script src="js/vuedraggable.umd.min.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+    </script>
+  </body>
+</html>
