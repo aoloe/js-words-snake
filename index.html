@@ -27,7 +27,7 @@
         </p>
         -->
       </div>
-      <template v-else>
+      <template v-else-if = "list !== null">
         <snake-list :list="list" :languages="languages" v-if="list.length > 0" v-on:select="select">
         </snake-list>
         <h2>Create a snake</h2>
