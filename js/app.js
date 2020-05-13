@@ -54,6 +54,8 @@ const app = new Vue({
     }
     if (localStorage.snake_id) {
       this.snake_id = localStorage.snake_id;
+    } else if (localStorage.snake_editor_words) {
+      this.editing = true;
     }
     this.get_list();
   },
@@ -82,6 +84,7 @@ const app = new Vue({
       if (id === null) {
         this.snake_id = null;
         localStorage.removeItem('snake_id');
+        localStorage.removeItem('snake_editor_words');
         this.share_key = null;
         localStorage.removeItem('snake_share_key');
         this.editing = false;

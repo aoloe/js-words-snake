@@ -9,7 +9,7 @@
   </head>
   <body>
     <div class="" id="app">
-      <h1>Words snake</h1>
+      <h1>Word Snake</h1>
       <p v-if="snake_id !== null || editing"><button v-on:click="select()">Back to the list</button></p>
       <editor v-if="editing === true" :languages="languages" v-on:create="create" v-on:update="update">
       </editor>

@@ -55,36 +55,106 @@ Vue.component('snake-list', {
   }
 });
 
+Vue.component('editor-word', {
+  template: `<div v-if="edit === null"
+          class="word"
+          v-on:click="make_editable"
+          >{{word}}
+    </div>
+    <input v-else v-model="edit" ref="edit_word" v-on:keyup.enter="store" v-on:blur="store" class="word" v-bind:style="{width: edit.length + 'ch'}">
+  </template>`,
+  props: {
+    word: String,
+    i: Number
+  },
+  data: function() {
+    return {
+      edit: null
+    }
+  },
+  methods: {
+    make_editable: function() {
+      this.edit = this.word;
+      Vue.nextTick(function() {this.$refs.edit_word.focus();}.bind(this));
+    },
+    store: function() {
+      this.$emit('set_word', this.i, this.edit.trim());
+      this.edit = null;
+    }
+  }
+});
+
 Vue.component('editor', {
-  template: `<div class="editor">
+  template: `<div class="snake-editor">
     <select v-model="language" required>
       <option v-for="(value, key) in languages" v-bind:value="key">
         {{value}}
       </option>
     </select><br>
-    Words list, separated by a comma:<br>
-    <textarea v-model="words" required></textarea><br>
-    <input type="button" value="Add" :disabled="language === null || words === ''" v-on:click="create"">
+    <div class="words">
+      <editor-word
+        v-for="(word, i) in words"
+        v-bind:key="i"
+        v-on:set_word="set_word"
+        :word="word"
+        :i="i">
+      </editor-word>
+      <input v-model="new_word" v-on:keyup.enter="add" class="word" v-bind:style="{width: new_word.length + 'ch', minWidth: '3ch'}"><br>
+    </div>
+    <input type="button" value="Create" :disabled="language === null || words.length < 3" v-on:click="create"">
   </div>`,
   props: {
     languages: Object
   },
   data: function() {
     return {
-      words: null,
+      words: [],
+      new_word: '',
       language: null,
+    }
+  },
+  mounted() {
+    if (localStorage.snake_editor_words) {
+      this.words = JSON.parse(localStorage.snake_editor_words);
     }
   },
   watch: {
     words: {
       handler(val) {
-        this.$emit('update', this.words);
+        localStorage.setItem('snake_editor_words', JSON.stringify(this.words));
       }
     }
   },
   methods: {
     create: function() {
-      this.$emit('create', this.language, this.words);
+      localStorage.removeItem('snake_editor_words');
+      this.$emit('create', this.language, this.words.join(', '));
+    },
+    get_words_from_input(text) {
+      text = text.trim();
+      if (text === '') {
+        return [];
+      }
+      if (text.includes(',')) {
+        return text.split(',').map(s => s.trim()).filter(s => s !== '');
+      } else {
+        return [text];
+      }
+    },
+    add: function() {
+      let words = this.get_words_from_input(this.new_word);
+      if (words.length > 0) {
+        this.words.push(...words);
+      }
+      this.new_word = '';
+    },
+    set_word: function(i, word) {
+      let words = this.get_words_from_input(word);
+      if (words.length > 0) {
+        this.words.splice(i, 1, ...this.get_words_from_input(word));
+      } else {
+        this.words.splice(i, 1);
+      }
     }
   }
 });

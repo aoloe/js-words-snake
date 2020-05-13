@@ -1,4 +1,4 @@
-# Words snake
+# Word Snake
 
 Create a snake of words between a _tail word_ and the _head one_.
 
@@ -17,8 +17,9 @@ Create a snake of words between a _tail word_ and the _head one_.
 
 ## Todo
 
+- zustand vom spiel in localstorage
 - improve the editor
-  - show the detected words, how they relate to each other and how many of them there are (and how many of each type?)
-  - show if a word relate to other words on top of the previews and the next.
+  - show the words relate to each other and how many of them there are (and how many of each type?)
+  - show if a word relate to other words (catch double links).
   - create a database of words and links between them
   - give hints for the current word

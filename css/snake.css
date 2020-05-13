@@ -118,20 +118,36 @@ hr {
 
 /** = editor = */
 
-div.editor {
+div.snake-editor {
   margin-bottom: 2em;
 }
+
+.snake-editor .words {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.snake-editor div.word
+{
+  height: 1em;
+  margin: .2em;
+  padding: .2em;
+  margin-top:1em;
+  border: 1px solid black;
+}
+
+.snake-editor input.word {
+  height: 1.5em;
+  margin: .2em;
+  margin-top:1em;
+  padding-top: .2em;
+  padding-bottom: .2em;
+}
+
 span.share_key {
   padding: 2px;
   border: 1px solid darkgray;
   background-color: lightgray;
-}
-div.editor textarea {
-  width:100%;
-  max-width:50em;
-  height:7em;
-}
-div.editor input.description {
-  width:100%;
-  max-width:40em;
 }
