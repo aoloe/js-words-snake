@@ -10,10 +10,10 @@
   <body>
     <div class="" id="app">
       <h1>Word Snake</h1>
-      <p v-if="snake_id !== null || editing"><button v-on:click="select()">Back to the list</button></p>
-      <editor v-if="editing === true" :languages="languages" v-on:create="create" v-on:update="update">
+      <p v-if="mode !== 'list'"><button v-on:click="go('list')">Back to the list</button></p>
+      <editor v-if="mode === 'edit'" :languages="languages" :snake_id="snake_id">
       </editor>
-      <div v-else-if="snake_id !== null" class="snake">
+      <div v-else-if="mode === 'view'" class="snake">
         <words-snake :snake_id="snake_id">
         </words-snake>
         <!--
@@ -27,11 +27,11 @@
         </p>
         -->
       </div>
-      <template v-else-if = "list !== null">
-        <snake-list :list="list" :languages="languages" v-if="list.length > 0" v-on:select="select">
+      <template v-else-if = "mode === 'list'">
+        <snake-list :languages="languages" v-on:a_link_event="go">
         </snake-list>
         <h2>Create a snake</h2>
-        <p>Create your own snake <input type="button" value="Create" v-on:click="edit('')"></p>
+        <p>Create your own snake <input type="button" value="Create" v-on:click="go('edit')"></p>
         <!--
         <h2>Join a shared snake</h2>
         <p>Use the invitation code you got: <input type="text" v-model="share_key" v-on:keyup.enter="join_shared"> <input type="button" value="Join" v-on:click="join_shared"></p>

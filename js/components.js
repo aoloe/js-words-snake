@@ -1,21 +1,23 @@
 Vue.component('snake-list', {
   template: `<div>
     <ul class="snake-list">
-      <li v-for="item in paginated_list" v-on:click="select(item.snake_id)">
-        {{item.title}}
-        ({{item.language}})
-        <a href="#" v-if="item.editable === true" v-on:click="edit(item.snake_id)">✎</a>
+      <li v-for="item in paginated_list">
+        <a-link href="view" :params="{snake_id: item.snake_id}" class = "label">
+          {{item.title}}
+          ({{item.language}})
+        </a-link>
+        <a-link v-if="item.editable" href="edit" :params="{snake_id: item.snake_id}">✎</a-link>
       </li>
     </ul>
     <button type="button" class="page-link" v-if="page > 0" v-on:click="page--"> Previous </button>
     <button type="button" class="page-link" v-if="page <= page_n" v-on:click="page++"> Next </button>
   </div>`,
   props: {
-    list: Array,
     languages: Object
   },
   data: function() {
     return {
+      list: [],
       page: 0,
       page_n: 0,
       per_page: 10,
@@ -23,9 +25,11 @@ Vue.component('snake-list', {
     }
   },
   mounted() {
-    if (localStorage.snake_filter) { 
+    if (localStorage.snake_filter) {
       this.filter = localStorage.snake_filter;
     }
+    console.log
+    this.get_list();
   },
   computed: {
     paginated_list() {
@@ -46,12 +50,18 @@ Vue.component('snake-list', {
     }
   },
   methods: {
-    edit: function() {
-      this.$emit('edit', '');
+    get_list: function() {
+      axios
+        .get(basedir+'/api/', {
+          params: {
+            action: 'list',
+            author: this.$root.player_id
+          }
+        })
+        .then(response => {
+          this.list = response.data;
+        });
     },
-    select: function(snake_id) {
-      this.$emit('select', snake_id);
-    }
   }
 });
 
@@ -101,10 +111,18 @@ Vue.component('editor', {
       </editor-word>
       <input v-model="new_word" v-on:keyup.enter="add" class="word" v-bind:style="{width: new_word.length + 'ch', minWidth: '3ch'}"><br>
     </div>
-    <input type="button" value="Create" :disabled="language === null || words.length < 3" v-on:click="create"">
+    <p v-if="snake_id">
+      <button :disabled="language === null || words.length < 3" v-on:click="save">Save</button>
+      <button v-on:click="remove">Delete</button>
+    </p>
+    <button v-else :disabled="language === null || words.length < 3" v-on:click="create">Create</button>
   </div>`,
   props: {
-    languages: Object
+    languages: Object,
+    snake_id: {
+      required: true,
+      validator: p => typeof p === 'string' || p === null
+    }
   },
   data: function() {
     return {
@@ -114,9 +132,30 @@ Vue.component('editor', {
     }
   },
   mounted() {
+    if (this.snake_id !== null) {
+      axios
+        .get(basedir+'/api/', {
+          params: {
+            action: 'get',
+            id: this.snake_id,
+            sort: false,
+            author: this.$root.player_id
+          }
+        })
+        .then(response => {
+          this.words = response.data.words;
+          this.language = response.data.language;
+        });
+      // TODO: if it fails should we tell root to invalidate snake_id?
+      // or simply issue a go('list')?
+    }
+    // TODO: test the restore while editing an exising snake
     if (localStorage.snake_editor_words) {
       this.words = JSON.parse(localStorage.snake_editor_words);
     }
+  },
+  destroyed() {
+    localStorage.removeItem('snake_editor_words');
   },
   watch: {
     words: {
@@ -128,7 +167,46 @@ Vue.component('editor', {
   methods: {
     create: function() {
       localStorage.removeItem('snake_editor_words');
-      this.$emit('create', this.language, this.words.join(', '));
+      title = this.words[0]+' → '+this.words[this.words.length - 1];
+      axios
+        .post(basedir+'/api/', {
+          action: 'create',
+          title: title,
+          language: this.language,
+          words: this.words,
+          author: this.$root.player_id
+        })
+        .then(response => {
+            this.$root.go('list');
+        });
+    },
+    save: function() {
+      localStorage.removeItem('snake_editor_words');
+      title = this.words[0]+' → '+this.words[this.words.length - 1];
+      axios
+        .post(basedir+'/api/', {
+          action: 'update',
+          id: this.snake_id,
+          title: title,
+          language: this.language,
+          words: this.words,
+          author: this.$root.player_id
+        })
+        .then(response => {
+            this.$root.go('list');
+        });
+    },
+    remove: function() {
+      localStorage.removeItem('snake_editor_words');
+      axios
+        .post(basedir+'/api/', {
+          action: 'delete',
+          id: this.snake_id,
+          author: this.$root.player_id
+        })
+        .then(response => {
+            this.$root.go('list');
+        });
     },
     get_words_from_input(text) {
       text = text.trim();
@@ -163,7 +241,7 @@ Vue.component('words-snake', {
   template: `<div class="words-snake">
       <div class="snake-box">
         <div class="left" v-bind:class="{'snake-solved': solved}">
-          <div class="snake-top">
+          <div v-if="snake_top !== null && snake_bottom !== null" class="snake-top">
             <div class="word first">{{first_snake}}</div>
             <div
               class="word"
@@ -245,7 +323,7 @@ Vue.component('words-snake', {
   },
   methods: {
     check_solved: function() {
-      if (this.words.length === 0) {
+      if (this.words !== null && this.words.length === 0) {
         this.solved = sha1(JSON.stringify(this.snake_top.concat(this.snake_bottom))) === this.solution_hash;
       } else {
         this.solved = false;
@@ -258,7 +336,6 @@ Vue.component('words-snake', {
       }
     },
     drop: function(target) {
-      console.log(target);
       if (target === 'top') {
         this.snake_top.push(this.target_top.splice(0, 1)[0]);
       } else {
@@ -282,6 +359,43 @@ Vue.component('words-snake', {
           this.title = response.data.title;
           this.solution_hash = response.data.solution_hash;
         });
+    }
+  }
+});
+
+// based on https://github.com/chrisvfritz/vue-2.0-simple-routing-example/blob/master/src/components/VLink.vue
+// this version does not push the state to the history
+Vue.component('a-link', {
+  template: `<a
+        v-bind:href="href"
+        v-bind:class="{ active: isActive }"
+        v-on:click="go"
+      >
+        <slot></slot>
+      </a>`,
+  props: {
+    href: {
+      type:String,
+      required: true
+    },
+    params: {
+      type: Object,
+      default: {}
+    }
+  },
+  computed: {
+    isActive () {
+      return this.href === this.$root.a_link_target
+    }
+  },
+  methods: {
+    go(event) {
+      event.preventDefault()
+      let vm = this.$parent;
+      while (vm) {
+        vm.$emit('a_link_event', this.href, this.params);
+        vm = vm.$parent;
+      }
     }
   }
 });

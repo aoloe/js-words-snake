@@ -46,10 +46,27 @@ $app->get('list', function() use($config, $request, $response) {
 
 $app->get('get', function() use($config, $request, $response) {
     $snake = new WordsSnake($config['db']);
-    [$hash, $title, $first, $last, $words] = $snake->get($request->get('id'));
-    $solution = hash('sha1', json_encode($words));
-    shuffle($words);
-    $response->respond(['snake_id' => $hash, 'title' => $title, 'first' => $first, 'last' => $last, 'words' => $words, 'solution_hash' => $solution]);
+    [$hash, $title, $words, $language, $snake_author] = $snake->get($request->get('id'));
+    $sort = true;
+    $author = null;
+    if ($request->has('sort') && $request->has('author')) {
+        $sort = $request->get('sort') === 'false' ? false : true;
+        $author = $request->get('author');
+    }
+    if ($sort === false) {
+        $response->respond(['snake_id' => $hash, 'title' => $title, 'words' => ($author === $snake_author ? $words : null), 'language' => $language]);
+    } else {
+        $solution = null;
+        $first = null;
+        $last = null;
+        if (isset($words)) {
+            $first = array_shift($words);
+            $last = array_pop($words);
+            $solution = hash('sha1', json_encode($words));
+            shuffle($words);
+        }
+        $response->respond(['snake_id' => $hash, 'title' => $title, 'first' => $first, 'last' => $last, 'words' => $words, 'language' => $language, 'solution_hash' => $solution, 'sort' => is_bool($sort)]);
+    }
 });
 
 $app->post('create', function() use($config, $request, $response) {
@@ -61,6 +78,27 @@ $app->post('create', function() use($config, $request, $response) {
         $request->get('author')
     );
     $response->respond(['id' => $hash]);
+});
+
+$app->post('update', function() use($config, $request, $response) {
+    $snake = new WordsSnake($config['db']);
+    [$id, $hash] = $snake->set(
+        $request->get('id'),
+        $request->get('title'),
+        $request->get('language'),
+        $request->get('words'),
+        $request->get('author')
+    );
+    $response->respond(['id' => $hash]);
+});
+
+$app->post('delete', function() use($config, $request, $response) {
+    $snake = new WordsSnake($config['db']);
+    [$hash] = $snake->delete(
+        $request->get('id'),
+        $request->get('author')
+    );
+    $response->respond(['hash' => $hash]);
 });
 
 $app->post('share', function() use($config, $request, $response) {

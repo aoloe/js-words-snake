@@ -8,14 +8,13 @@ ul.snake-list li {
   margin-top:1em;
 }
 
-ul.snake-list a {
+ul.snake-list li a {
   color: black;
   text-decoration: none;
 }
 
-ul.snake-list li:hover {
+ul.snake-list li a.label:hover {
   text-decoration: underline;
-  cursor: pointer;
 }
 
 /** = words-snake = */

@@ -46,20 +46,17 @@ class WordsSnake
 
     function get($hash) {
         $stmt = $this->db->prepare('SELECT
-            snake_hash, title, snake
+            snake_hash, title, snake, language, author
             FROM snake
             WHERE snake_hash = :hash');
         $stmt->bindValue(':hash', $hash);
         $db_result = $stmt->execute();
         $row = $db_result->fetchArray(SQLITE3_NUM);
         if ($row) {
-            $snake = json_decode($row[2], true);
-            $first = array_shift($snake);
-            $last = array_pop($snake);
-            return [$row[0], $row[1], $first, $last, $snake];
+            return [$row[0], $row[1], json_decode($row[2], true), $row[3], $row[4]];
                 
         } else {
-            return [null, null, null, null, null];
+            return array_fill(0, 5, null);
         }
     }
 
@@ -75,6 +72,33 @@ class WordsSnake
         $stmt->bindValue(':author', $author, SQLITE3_TEXT);
         $stmt->execute();
         return [$this->db->lastInsertRowid(), $snake_hash];
+    }
+
+    public function set($snake_hash, $title, $language, $snake, $author) {
+        $stmt = $this->db->prepare('UPDATE snake SET
+            (title, language, snake) =
+                (:title, :language, :snake)
+            WHERE snake_hash = :snake_hash AND
+                author = :author');
+        $stmt->bindValue(':title', $title, SQLITE3_TEXT);
+        $stmt->bindValue(':language', $language, SQLITE3_TEXT);
+        $stmt->bindValue(':snake', json_encode($snake, SQLITE3_TEXT));
+        $stmt->bindValue(':snake_hash', $snake_hash, SQLITE3_TEXT);
+        $stmt->bindValue(':author', $author, SQLITE3_TEXT);
+        $stmt->execute();
+        return [$this->db->lastInsertRowid(), $snake_hash];
+    }
+
+    /// @return null on success, the original hash otherwise
+    public function delete($snake_hash, $author) {
+        $stmt = $this->db->prepare('DELETE FROM snake
+            WHERE snake_hash = :snake_hash AND
+                author = :author');
+        $stmt->bindValue(':snake_hash', $snake_hash, SQLITE3_TEXT);
+        $stmt->bindValue(':author', $author, SQLITE3_TEXT);
+        $stmt->execute();
+        // return ['hash' => $this->db->changes() === 1 ? null : $snake_hash];
+        return ['hash' => $this->db->changes() === 1 ? null : $snake_hash];
     }
 
     // https://stackoverflow.com/a/2117523/5239250

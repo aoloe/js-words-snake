@@ -35,15 +35,19 @@ function uuidv4() {
   );
 }
 
+const modes = [
+  'list',
+  'view',
+  'edit'
+];
+
 const app = new Vue({
   el: '#app',
   data: {
     languages: {'de': 'Deutsch', 'it': 'Italiano', 'en': 'English', 'fr': 'Français'},
-    list: null,
-    snake: null,
     snake_id: null,
-    editing: false,
-    share_key: null,
+    mode: null,
+    // share_key: null,
   },
   mounted() {
     if (localStorage.snake_player_id) { 
@@ -54,46 +58,23 @@ const app = new Vue({
     }
     if (localStorage.snake_id) {
       this.snake_id = localStorage.snake_id;
-    } else if (localStorage.snake_editor_words) {
-      this.editing = true;
     }
-    this.get_list();
+    if (localStorage.snake_mode) {
+      this.mode = localStorage.snake_mode;
+    }
   },
   methods: {
-    get_list: function() {
-      axios
-        .get(basedir+'/api/', {
-          params: {
-            action: 'list',
-            author: this.player_id
-          }
-        })
-        .then(response => {
-          this.list = response.data;
-        });
-    },
-    // there seems to be no garantee that the items in $refs are in the correct order: we cannot pos as the index
-    edit: function() {
-      this.editing = true;
-      this.snake = [];
-    },
-    update: function(list) {
-      this.snake = new SnakeWords(list);
-    },
-    select: function(id = null) {
-      if (id === null) {
-        this.snake_id = null;
-        localStorage.removeItem('snake_id');
-        localStorage.removeItem('snake_editor_words');
-        this.share_key = null;
-        localStorage.removeItem('snake_share_key');
-        this.editing = false;
-      } else {
-        this.snake_id = id;
-        localStorage.setItem('snake_id', id);
-        if (localStorage.snake_share_key) {
-          this.share_key = localStorage.snake_share_key;
-          this.activate_sharing();
+    go: function(href, params = {}) {
+      console.log('go', href, params);
+      if (modes.includes(href)) {
+        this.mode = href;
+        localStorage.setItem('snake_mode', this.mode);
+        if ('snake_id' in params) {
+          this.snake_id = params.snake_id;
+          localStorage.setItem('snake_id', this.snake_id);
+        } else {
+          this.snake_id = null;
+          localStorage.removeItem('snake_id');
         }
       }
     },
@@ -108,17 +89,20 @@ const app = new Vue({
       */
     },
     share: function() {
+      /*
       axios
         .post(basedir+'/api/', {
           action: 'share',
-          id: this.cipher_id
+          id: this.snake_id
         })
         .then(response => {
           this.share_key = response.data.share_key;
           localStorage.setItem('snake_share_key', this.share_key);
         })
+      */
     },
     join_shared: function() {
+      /*
       axios
         .post(basedir+'/api/', {
           action: 'join_shared',
@@ -129,24 +113,7 @@ const app = new Vue({
           this.select(response.data.id);
           this.activate_sharing();
         })
-    },
-    create: function(language, words) {
-      list = words.split(',').map(function(e) {return e.trim();});
-      title = list[0]+' → '+list[list.length - 1];
-
-      axios
-        .post(basedir+'/api/', {
-          action: 'create',
-          title: title,
-          language: language,
-          words: list,
-          author: this.player_id
-        })
-        .then(response => {
-            this.get_list();
-            this.snake = null;
-            this.editing = false;
-        });
+      */
     }
   }
 });
