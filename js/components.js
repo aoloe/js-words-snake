@@ -69,12 +69,13 @@ Vue.component('editor-word', {
   template: `<div v-if="edit === null"
           class="word"
           v-on:click="make_editable"
-          >{{word}}
+          >{{word}} {{relationship}}
     </div>
     <input v-else v-model="edit" ref="edit_word" v-on:keyup.enter="store" v-on:blur="store" class="word" v-bind:style="{width: edit.length + 'ch'}">
   </template>`,
   props: {
     word: String,
+    relationship: String,
     i: Number
   },
   data: function() {
@@ -110,7 +111,20 @@ Vue.component('editor', {
         :i="i">
       </editor-word>
       <input v-model="new_word" v-on:keyup.enter="add" class="word" v-bind:style="{width: new_word.length + 'ch', minWidth: '3ch'}"><br>
+    <!--
+    <div class="words">
+      <editor-word
+        v-for="(word, i) in words.map((v, i) => [v, relationships[i]])"
+        v-bind:key="i"
+        v-on:set_word="set_word"
+        :word="word[0]"
+        :relationship="word[1]"
+        :i="i">
+      </editor-word>
     </div>
+    -->
+    </div>
+    <div>Number of words: {{words.length}}</div>
     <p v-if="snake_id">
       <button :disabled="language === null || words.length < 3" v-on:click="save">Save</button>
       <button v-on:click="remove">Delete</button>
@@ -129,6 +143,30 @@ Vue.component('editor', {
       words: [],
       new_word: '',
       language: null,
+    }
+  },
+  computed: {
+    relationships () {
+      const sorted = this.words.map((v, i) => v.split('').sort().join(''));
+      console.log(sorted);
+      const n = sorted.length;
+      return sorted.map(function(v, i) {
+        if (i > n - 2) {
+          return ' ';
+        }
+        const next_word = sorted[i+1];
+        if (v === next_word) {
+          return '↔';
+        }
+        if (v.length === next_word.length + 1) {
+          return '-';
+        }
+        if (v.length === next_word.length - 1) {
+          return '+';
+        }
+        return '∞';
+      });
+      // return this.words;
     }
   },
   mounted() {

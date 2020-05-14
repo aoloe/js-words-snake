@@ -59,6 +59,7 @@ $app->get('get', function() use($config, $request, $response) {
         $solution = null;
         $first = null;
         $last = null;
+        array_walk($words, function(&$v) {$v = strtoupper($v);});
         if (isset($words)) {
             $first = array_shift($words);
             $last = array_pop($words);
