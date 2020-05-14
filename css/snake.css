@@ -84,6 +84,10 @@ ul.snake-list li a.label:hover {
   background-color: black;
 }
 
+.snake-box .word {
+  font-family: sans;
+}
+
 .snake-top .word,
 .snake-bottom .word,
 .snake-top .first,
