@@ -155,7 +155,8 @@ Vue.component('editor', {
         if (i > this.words.length - 2) {
           return '.';
         }
-        const next_w = this.words[i+1];
+        w = w.toLowerCase();
+        const next_w = this.words[i+1].toLowerCase();
         if (WordSnake.has_single_difference(w, next_w)) {
           this.stats['one_difference']++;
           return '≈'; // ⭭≚↕
