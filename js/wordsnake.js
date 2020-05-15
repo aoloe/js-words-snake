@@ -1,6 +1,27 @@
 WordSnake = function() {
 }
 
+WordSnake.relationships = {
+  identic: {symbol: '=', legend: 'Identical'},
+  anagram: {symbol: '∞', legend: 'Anagram'},
+  change: {symbol: '≈', legend: 'Change a character'},
+  drop: {symbol: '–', legend: 'Drop a character'},
+  add: {symbol: '+', legend: 'Add a character'},
+  other: {symbol: '↷', legend: 'Others (synonym, antonym, association)'}
+}
+
+WordSnake.split_input = function(text) {
+  text = text.trim();
+  if (text === '') {
+    return [];
+  }
+  if (text.includes(',')) {
+    return text.split(',').map(s => s.trim()).filter(s => s !== '');
+  } else {
+    return [text];
+  }
+}
+
 WordSnake.is_anagram = function(a, b) {
   return a.split('').sort().join('') ===
     b.split('').sort().join('');
@@ -44,6 +65,26 @@ WordSnake.has_single_add_remove = function(a, b) {
     return a.substring(j + 1)  === b.substring(j);
   }
   return false;
+}
+
+WordSnake.get_relationships = function(a, b) {
+  if (a === b) {
+    return 'identic';
+  }
+  if (WordSnake.has_single_difference(a, b)) {
+    return 'change';
+  }
+  if (WordSnake.has_single_add_remove(a, b)) {
+    if (a.length > b.length) {
+      return 'drop';
+    } else {
+      return 'add';
+    }
+  }
+  if (WordSnake.is_anagram(a, b)) {
+    return 'anagram';
+  }
+  return 'other';
 }
 
 WordSnake.get_basedir = function(url) {

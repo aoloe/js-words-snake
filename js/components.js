@@ -28,7 +28,6 @@ Vue.component('snake-list', {
     if (localStorage.snake_filter) {
       this.filter = localStorage.snake_filter;
     }
-    console.log
     this.get_list();
   },
   computed: {
@@ -123,13 +122,15 @@ Vue.component('editor', {
     <div class="legend">
       <ul>
         <li data-bullet=" ">Number of words: {{words.length}}</li>
-        <li data-bullet="∞">Anagram: {{stats.anagram}}</li>
-        <li data-bullet="≈">Change a character: {{stats.one_difference}}</li>
-        <li data-bullet="–">Drop a character: {{stats.one_less}}</li>
-        <li data-bullet="+">Add a character: {{stats.one_more}}</li>
-        <li data-bullet="↷">Others (synonym, antonym, association) : {{stats.other}}</li>
+        <li v-for="(r, k) of relationship_types" v-bind:data-bullet="r.symbol">{{r.legend}}: {{stats[k]}}</li>
       </ul>
     </div>
+    <button :disabled="words.length < 3" v-on:click="check">Check</button>
+    <ul>
+      <li
+        v-for="(warning, i) in warnings"
+      >{{warning}}</li>
+    </ul>
   </div>`,
   props: {
     languages: Object,
@@ -143,12 +144,14 @@ Vue.component('editor', {
       words: [],
       new_word: '',
       language: null,
-      stats: {}
+      stats: {},
+      warnings: [],
+      relationship_types: WordSnake.relationships
     }
   },
   computed: {
     relationships () {
-      this.stats = {'one_difference': 0, 'one_less': 0, 'one_more': 0, 'anagram': 0, 'other': 0};
+      this.stats = {'change': 0, 'drop': 0, 'add': 0, 'anagram': 0, 'other': 0};
       // return this.words;
       return this.words.map(function(w, i) {
         // do not compare the last one
@@ -157,25 +160,9 @@ Vue.component('editor', {
         }
         w = w.toLowerCase();
         const next_w = this.words[i+1].toLowerCase();
-        if (WordSnake.has_single_difference(w, next_w)) {
-          this.stats['one_difference']++;
-          return '≈'; // ⭭≚↕
-        }
-        if (WordSnake.has_single_add_remove(w, next_w)) {
-          if (w.length > next_w.length) {
-            this.stats['one_less']++;
-            return '–';
-          } else {
-            this.stats['one_more']++;
-            return '+'; // —-⊖⊝⊟≪  ⊕⊞≫
-          }
-        }
-        if (WordSnake.is_anagram(w, next_w)) {
-          this.stats['anagram']++;
-          return '∞'; // ⟳↔≈
-        }
-        this.stats['other']++;
-        return '↷'; // ∞
+        let rel = WordSnake.get_relationships(w, next_w);
+        this.stats[rel]++;
+        return this.relationship_types[rel].symbol;
       }.bind(this));
     }
   },
@@ -256,19 +243,8 @@ Vue.component('editor', {
             this.$root.go('list');
         });
     },
-    get_words_from_input(text) {
-      text = text.trim();
-      if (text === '') {
-        return [];
-      }
-      if (text.includes(',')) {
-        return text.split(',').map(s => s.trim()).filter(s => s !== '');
-      } else {
-        return [text];
-      }
-    },
     add: function() {
-      let words = this.get_words_from_input(this.new_word);
+      let words = WordSnake.split_input(this.new_word);
       if (words.length > 0) {
         this.words.push(...words);
       }
@@ -280,6 +256,19 @@ Vue.component('editor', {
         this.words.splice(i, 1, ...this.get_words_from_input(word));
       } else {
         this.words.splice(i, 1);
+      }
+    },
+    check: function() {
+      this.warnings = [];
+      for (let i = 0; i < this.words.length - 2; i++) {
+        const w = this.words[i].toLowerCase();
+        for (let j = i + 2; j < this.words.length; j++) {
+          const o = this.words[j].toLowerCase();
+          let rel = WordSnake.get_relationships(w, o);
+          if (rel != 'other') {
+            this.warnings.push(`${w} (${i + 1}) ${this.relationship_types[rel].symbol} ${o} (${j + 1})`);
+          }
+        }
       }
     }
   }
