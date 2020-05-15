@@ -251,9 +251,9 @@ Vue.component('editor', {
       this.new_word = '';
     },
     set_word: function(i, word) {
-      let words = this.get_words_from_input(word);
+      let words = WordSnake.split_input(word);
       if (words.length > 0) {
-        this.words.splice(i, 1, ...this.get_words_from_input(word));
+        this.words.splice(i, 1, ...words);
       } else {
         this.words.splice(i, 1);
       }
