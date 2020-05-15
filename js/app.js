@@ -1,8 +1,4 @@
-function get_basedir(url) {
-  return url.slice(-1) == '/' ? url.slice(0, -1) : url.split('/').slice(0,-1).join('/');
-}
-
-basedir = get_basedir(window.location.pathname);
+basedir = WordSnake.get_basedir(window.location.pathname);
 
 /*
 var Pusher_channel_factory = (function() {
@@ -28,13 +24,6 @@ var Pusher_channel_factory = (function() {
 
 */
 
-// https://stackoverflow.com/a/2117523/5239250
-function uuidv4() {
-  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-  );
-}
-
 const modes = [
   'list',
   'view',
@@ -53,7 +42,7 @@ const app = new Vue({
     if (localStorage.snake_player_id) { 
       this.player_id = localStorage.snake_player_id;
     } else {
-      this.player_id = uuidv4();
+      this.player_id = WordSnake.uuidv4();
       localStorage.setItem('snake_player_id', this.player_id);
     }
     if (localStorage.snake_id) {
@@ -65,7 +54,6 @@ const app = new Vue({
   },
   methods: {
     go: function(href, params = {}) {
-      console.log('go', href, params);
       if (modes.includes(href)) {
         this.mode = href;
         localStorage.setItem('snake_mode', this.mode);
