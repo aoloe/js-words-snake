@@ -218,10 +218,12 @@ Vue.component('editor', {
           }
         })
         .then(response => {
-          // console.log(response.data);
+          console.log(response.data);
           this.words = response.data.words;
           this.language = response.data.language;
-          this.category = response.data.category;
+          for (k in response.data.category) {
+            this.category[k] = response.data.category[k];
+          }
           this.work_in_progress = response.data.work_in_progress;
         });
       // TODO: if it fails should we tell root to invalidate snake_id?
