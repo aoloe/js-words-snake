@@ -51,7 +51,7 @@ class WordsSnake
         // echo('<pre>row: '.print_r($row, 1).'</pre>');
         if ($row) {
             return [
-                $row[0], $row[1], json_decode($row[2], true), $row[3], json_decode($row[4], true), $row[5], $row[6]];
+                $row[0], $row[1], json_decode($row[2], true), $row[3], isset($row[4]) ? json_decode($row[4], true) : [], $row[5], $row[6]];
                 
         } else {
             return array_fill(0, 7, null);
