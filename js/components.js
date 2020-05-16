@@ -6,18 +6,23 @@ Vue.component('snake-list', {
           {{item.title}}
           ({{item.language}})
         </a-link>
+        <span v-if="item.work_in_progress" title="Work in progress">🚧</span>
+        <template v-for="(active, category) in item.category"><span v-if="active" v-bind:title="categories[category].legend">{{categories[category].symbol}}</span></template>
         <a-link v-if="item.editable" href="edit" :params="{snake_id: item.snake_id}">✎</a-link>
+        <a v-else-if="admin" v-on:click="impersonate(item.snake_id)" title="Manage this Snake's user">👤</a>
       </li>
     </ul>
     <button type="button" class="page-link" v-if="page > 0" v-on:click="page--"> Previous </button>
     <button type="button" class="page-link" v-if="page <= page_n" v-on:click="page++"> Next </button>
   </div>`,
   props: {
-    languages: Object
+    languages: Object,
+    categories: Object
   },
   data: function() {
     return {
       list: [],
+      admin: false,
       page: 0,
       page_n: 0,
       per_page: 10,
@@ -58,9 +63,26 @@ Vue.component('snake-list', {
           }
         })
         .then(response => {
-          this.list = response.data;
+          this.admin = response.data.admin;
+          this.list = response.data.list;
+          this.work_in_progress = response.data.work_in_progress;
         });
     },
+    impersonate: function(snake_id) {
+      axios
+        .get(basedir+'/api/', {
+          params: {
+            action: 'user_by_snake',
+            id: snake_id,
+            admin: this.$root.player_id
+          }
+        })
+        .then(response => {
+          // TODO: not sure it's a good itea to write it directly...
+          this.$root.player_id = response.data.user_id
+          this.get_list();
+        });
+    }
   }
 });
 
@@ -102,7 +124,19 @@ Vue.component('editor', {
       <option v-for="(value, key) in languages" v-bind:value="key">
         {{value}}
       </option>
+    </select>
+    <!--
+    <select v-model="category" required>
+      < :value="null" disabled selected>Categories</option>
+      <option v-for="(value, key) in categories" v-bind:value="key">
+        {{value.symbol}} {{value.legend}}
+      </option>
     </select><br>
+    -->
+      <template v-for="(value, key) in categories">
+        <input type="checkbox" :id="key" v-model="category[key]">
+        <label :for="key" :title="value.legend">{{ value.symbol }}</label>
+      </template>
     <div class="words">
       <editor-word
         v-for="(word, i) in words.map((v, i) => [v, relationships[i]])"
@@ -114,11 +148,14 @@ Vue.component('editor', {
       </editor-word>
       <input v-model="new_word" v-on:keyup.enter="add" class="word" v-bind:style="{width: new_word.length + 'ch', minWidth: '3ch'}"><br>
     </div>
-    <p v-if="snake_id">
-      <button :disabled="language === null || words.length < 3" v-on:click="save">Save</button>
-      <button v-on:click="remove">Delete</button>
-    </p>
-    <button v-else :disabled="language === null || words.length < 3" v-on:click="create">Create</button>
+    <div>
+      <template v-if="snake_id">
+        <button :disabled="language === null || words.length < 3" v-on:click="save">Save</button>
+        <button v-on:click="remove">Delete</button>
+      </template>
+      <button v-else :disabled="language === null || words.length < 3" v-on:click="create">Create</button>
+      <input type="checkbox" id="wip" v-model="work_in_progress"><label for="wip" title="Work in progress">🚧</label>
+    </div>
     <div class="legend">
       <ul>
         <li data-bullet=" ">Number of words: {{words.length}}</li>
@@ -134,6 +171,7 @@ Vue.component('editor', {
   </div>`,
   props: {
     languages: Object,
+    categories: Object,
     snake_id: {
       required: true,
       validator: p => typeof p === 'string' || p === null
@@ -144,6 +182,8 @@ Vue.component('editor', {
       words: [],
       new_word: '',
       language: null,
+      category: {hard: false, personal: false, kids: false},
+      work_in_progress: false,
       stats: {},
       warnings: [],
       relationship_types: WordSnake.relationships
@@ -178,8 +218,11 @@ Vue.component('editor', {
           }
         })
         .then(response => {
+          // console.log(response.data);
           this.words = response.data.words;
           this.language = response.data.language;
+          this.category = response.data.category;
+          this.work_in_progress = response.data.work_in_progress;
         });
       // TODO: if it fails should we tell root to invalidate snake_id?
       // or simply issue a go('list')?
@@ -209,6 +252,8 @@ Vue.component('editor', {
           title: title,
           language: this.language,
           words: this.words,
+          category: this.category,
+          work_in_progress: this.work_in_progress,
           author: this.$root.player_id
         })
         .then(response => {
@@ -224,6 +269,8 @@ Vue.component('editor', {
           id: this.snake_id,
           title: title,
           language: this.language,
+          category: this.category,
+          work_in_progress: this.work_in_progress,
           words: this.words,
           author: this.$root.player_id
         })

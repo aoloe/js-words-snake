@@ -34,6 +34,7 @@ const app = new Vue({
   el: '#app',
   data: {
     languages: {'de': 'Deutsch', 'it': 'Italiano', 'en': 'English', 'fr': 'Français'},
+    categories: WordSnake.categories,
     snake_id: null,
     mode: null,
     // share_key: null,

@@ -10,6 +10,13 @@ WordSnake.relationships = {
   other: {symbol: '↷', legend: 'Others (synonym, antonym, association)'}
 }
 
+WordSnake.categories = {
+  // general: {symbol: ' ', legend: 'General'},
+  hard: {symbol: '💪', legend: 'Hard'},
+  personal: {symbol: '👪', legend: 'Personal'},
+  kids: {symbol: '🐣', legend: 'For Kids'},
+}
+
 WordSnake.split_input = function(text) {
   text = text.trim();
   if (text === '') {
