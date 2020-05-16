@@ -73,11 +73,11 @@ $app->get('get', function() use($config, $request, $response) {
         $solution = null;
         $first = null;
         $last = null;
-        array_walk($words, function(&$v) {$v = strtoupper($v);});
+        array_walk($words, function(&$v) {$v = mb_strtoupper($v);});
         if (isset($words)) {
             $first = array_shift($words);
             $last = array_pop($words);
-            $solution = hash('sha1', json_encode($words));
+            $solution = hash('sha1', json_encode($words, JSON_UNESCAPED_UNICODE));
             shuffle($words);
         }
         $response->respond([

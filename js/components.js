@@ -409,6 +409,7 @@ Vue.component('words-snake', {
   },
   methods: {
     check_solved: function() {
+      console.log(this.words);
       if (this.words !== null && this.words.length === 0) {
         this.solved = WordSnake.sha1(JSON.stringify(this.snake_top.concat(this.snake_bottom))) === this.solution_hash;
       } else {
