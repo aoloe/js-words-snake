@@ -218,7 +218,7 @@ Vue.component('editor', {
           }
         })
         .then(response => {
-          console.log(response.data);
+          // console.log(response.data);
           this.words = response.data.words;
           this.language = response.data.language;
           for (k in response.data.category) {
@@ -409,7 +409,7 @@ Vue.component('words-snake', {
   },
   methods: {
     check_solved: function() {
-      console.log(this.words);
+      // console.log(this.words);
       if (this.words !== null && this.words.length === 0) {
         this.solved = WordSnake.sha1(JSON.stringify(this.snake_top.concat(this.snake_bottom))) === this.solution_hash;
       } else {
