@@ -28,6 +28,9 @@ class WordsSnake
             FROM snake
             ORDER BY snake_id DESC');
         while ($row = $db_result->fetchArray(SQLITE3_NUM)) {
+            if ($row[4] && ($author !== $row[5])) {
+                continue;
+            }
             $list[] = [
                 'hash' => $row[0],
                 'title' => $row[1],
