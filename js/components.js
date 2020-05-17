@@ -65,7 +65,6 @@ Vue.component('snake-list', {
         .then(response => {
           this.admin = response.data.admin;
           this.list = response.data.list;
-          this.work_in_progress = response.data.work_in_progress;
         });
     },
     impersonate: function(snake_id) {
