@@ -13,7 +13,7 @@ Vue.component('snake-list', {
       </li>
     </ul>
     <button type="button" class="page-link" v-if="page > 0" v-on:click="page--"> Previous </button>
-    <button type="button" class="page-link" v-if="page <= page_n" v-on:click="page++"> Next </button>
+    <button type="button" class="page-link" v-if="page < page_n - 1" v-on:click="page++"> Next </button>
   </div>`,
   props: {
     languages: Object,
@@ -48,8 +48,8 @@ Vue.component('snake-list', {
         list = this.list.filter(f => f.language === this.filter);
       }
       start = this.page * this.per_page;
+      this.page_n = Math.ceil(list.length / this.per_page);
       list = list.slice(start, start + this.per_page);
-      page_n = Math.trunc(list.length / this.per_page);
       return list;
     }
   },
