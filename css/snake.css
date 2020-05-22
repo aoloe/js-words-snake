@@ -21,7 +21,7 @@ ul.snake-list li a.label:hover {
 
 .snake-box {
   width: 100%;
-  max-width:50em;
+  max-width:40em;
   display: flex;
   align-items: flex-start;
 }
