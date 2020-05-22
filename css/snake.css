@@ -176,6 +176,20 @@ div.snake-editor {
   padding-bottom: .2em;
 }
 
+.snake-editor a.icon {
+  height: 1.5em;
+  margin: .2em;
+  margin-top:1em;
+  padding-top: .2em;
+  padding-bottom: .2em;
+}
+
+.snake-editor textarea {
+  width:100%;
+  max-width:50em;
+  height:7em;
+}
+
 .snake-editor div.legend ul {
   list-style: none;
   margin-left: 0;

@@ -17,9 +17,19 @@ Create a snake of words between a _tail word_ and the _head one_.
 
 ## Todo
 
+- avoid backspace
+  - <https://stackoverflow.com/questions/1495219/how-can-i-prevent-the-backspace-key-from-navigating-back#comment18441045_8218367>
+  - simpler:
+
+    ```
+    window.onkeydown = function(e) {
+    if (e.keyCode == 8 && e.target == document.body)
+      e.preventDefault();
+    }
+    ```
+  - for now: if somebody does not want to go back with backspace, she should disable it in the browser.
+
 - zustand vom spiel in localstorage
 - improve the editor
-  - show the words relate to each other and how many of them there are (and how many of each type?)
-  - show if a word relate to other words (catch double links).
   - create a database of words and links between them
   - give hints for the current word

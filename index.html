@@ -31,7 +31,7 @@
         <snake-list :languages="languages" :categories="categories" v-on:a_link_event="go">
         </snake-list>
         <h2>Create a snake</h2>
-        <p>Create your own snake <input type="button" value="Create" v-on:click="go('edit')"></p>
+        <p>Create your own snake <button v-on:click="go('edit')">Create</button></p>
         <!--
         <h2>Join a shared snake</h2>
         <p>Use the invitation code you got: <input type="text" v-model="share_key" v-on:keyup.enter="join_shared"> <input type="button" value="Join" v-on:click="join_shared"></p>

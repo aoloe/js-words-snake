@@ -117,6 +117,34 @@ Vue.component('editor-word', {
   }
 });
 
+Vue.component('editor-textarea', {
+  template: `<div>
+    <textarea v-model="text" v-on:keydown="textarea_no_enter" v-on:keyup.enter="out_of_textarea" v-on:blur="out_of_textarea"></textarea>
+  </div>`,
+  props: {
+    words: Array,
+  },
+  data: function() {
+    return {
+      text: ''
+    }
+  },
+  mounted() {
+      this.text = this.words.join(', ');
+  },
+  methods: {
+    textarea_no_enter(e) {
+      if (e.keyCode == 13) {e.preventDefault(); }
+    },
+    out_of_textarea() {
+      this.$emit('close',
+        this.text.split(',')
+          .map((t) => t.trim())
+          .filter((t) => t !== ''));
+    }
+  }
+});
+
 Vue.component('editor', {
   template: `<div class="snake-editor">
     <select v-model="language" required>
@@ -136,7 +164,7 @@ Vue.component('editor', {
         <input type="checkbox" :id="key" v-model="category[key]">
         <label :for="key" :title="value.legend">{{ value.symbol }}</label>
       </template>
-    <div class="words">
+    <div v-if="!textarea" class="words">
       <editor-word
         v-for="(word, i) in words.map((v, i) => [v, relationships[i]])"
         v-bind:key="i"
@@ -146,10 +174,13 @@ Vue.component('editor', {
         :i="i">
       </editor-word>
       <input v-model="new_word" v-on:keyup.enter="add" class="word" v-bind:style="{width: new_word.length + 'ch', minWidth: '3ch'}"><br>
+      <a v-if="new_word === ''" v-on:click="view_textarea" class="icon" title="Edit as text">🗎</a>
     </div>
+    <editor-textarea v-else :words="words" v-on:close="close_textarea"></editor-textarea>
     <div>
+
       <template v-if="snake_id">
-        <button :disabled="language === null || words.length < 3" v-on:click="save">Save</button>
+        <button :disabled="language === null || words.length < 3 || textarea" v-on:click="save">Save</button>
         <button v-on:click="remove">Delete</button>
       </template>
       <button v-else :disabled="language === null || words.length < 3" v-on:click="create">Create</button>
@@ -178,6 +209,7 @@ Vue.component('editor', {
   },
   data: function() {
     return {
+      textarea: false,
       words: [],
       new_word: '',
       language: null,
@@ -219,6 +251,9 @@ Vue.component('editor', {
         .then(response => {
           // console.log(response.data);
           this.words = response.data.words;
+          if (localStorage.snake_editor_words) {
+            this.words = JSON.parse(localStorage.snake_editor_words);
+          }
           this.language = response.data.language;
           for (k in response.data.category) {
             this.category[k] = response.data.category[k];
@@ -227,10 +262,10 @@ Vue.component('editor', {
         });
       // TODO: if it fails should we tell root to invalidate snake_id?
       // or simply issue a go('list')?
-    }
-    // TODO: test the restore while editing an exising snake
-    if (localStorage.snake_editor_words) {
-      this.words = JSON.parse(localStorage.snake_editor_words);
+    } else {
+      if (localStorage.snake_editor_words) {
+        this.words = JSON.parse(localStorage.snake_editor_words);
+      }
     }
   },
   destroyed() {
@@ -305,6 +340,13 @@ Vue.component('editor', {
       } else {
         this.words.splice(i, 1);
       }
+    },
+    view_textarea() {
+      this.textarea = true;
+    },
+    close_textarea(words) {
+      this.words = words;
+      this.textarea = false;
     },
     check: function() {
       this.warnings = [];
