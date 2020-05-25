@@ -51,6 +51,8 @@ const app = new Vue({
     }
     if (localStorage.snake_mode) {
       this.mode = localStorage.snake_mode;
+    } else {
+      this.mode = 'list';
     }
   },
   methods: {
