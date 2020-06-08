@@ -2,6 +2,9 @@
 
 Create a snake of words between a _tail word_ and the _head one_.
 
+I've creatd this game for my family and friends.  
+The main goal being to learn more about vue.js and about sortable / droppable list elements.
+
 ## Install
 
 - `git clone https://github.com/aoloe/js-words-snake.git snake`
