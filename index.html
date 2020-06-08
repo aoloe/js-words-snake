@@ -9,6 +9,16 @@
   </head>
   <body>
     <div class="" id="app">
+      <header>
+        <a href="../" class="logo round" title="Back to the games list">
+        <img src="../images/games-200.png" class="icon">
+        </a>
+        <!--
+        <a-link href="list" class="logo square">
+        <img src="../images/cipher-2.png" class="icon">
+        </a-link>
+        -->
+      </header>
       <h1>Word Snake</h1>
       <p v-if="mode !== 'list'"><button v-on:click="go('list')">Back to the list</button></p>
       <editor v-if="mode === 'edit'" :languages="languages" :categories="categories" :snake_id="snake_id">
